@@ -2,7 +2,7 @@ import React from 'react';
 import { Wrench, Activity, Database, Cpu, Zap } from 'lucide-react';
 
 const SegmentedBar = ({ percent, colorClass }) => {
-    const totalSegments = 20;
+    const totalSegments = 10;
     const activeSegments = Math.floor((percent / 100) * totalSegments);
 
     return (
@@ -11,8 +11,8 @@ const SegmentedBar = ({ percent, colorClass }) => {
                 <div
                     key={i}
                     className={`flex-1 rounded-sm transition-all duration-300 ${i < activeSegments
-                            ? `${colorClass} shadow-[0_0_5px_currentColor] opacity-100`
-                            : 'bg-slate-800 opacity-30'
+                        ? `${colorClass} shadow-[0_0_5px_currentColor] opacity-100`
+                        : 'bg-slate-800 opacity-30'
                         }`}
                 />
             ))}
