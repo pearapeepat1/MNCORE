@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, ClipboardList, Settings, PenTool, Cpu, AlertCircle, ChevronRight, Zap, Box, Activity } from 'lucide-react';
+import { Package, ClipboardList, Settings, PenTool, Cpu, AlertCircle, ChevronRight, Zap, Box, Activity, CheckCircle2 } from 'lucide-react';
 
 const CompactAnalytics = ({ spareParts, maintenanceLogs }) => {
     return (
@@ -66,6 +66,12 @@ const CompactAnalytics = ({ spareParts, maintenanceLogs }) => {
                                                 style={{ width: `${healthPct}%` }}
                                             ></div>
                                         </div>
+                                        {/* Micro-Data: Last Replaced */}
+                                        <div className="flex justify-end mt-1">
+                                            <span className="text-[8px] text-slate-600 font-mono uppercase tracking-wide">
+                                                Last Replaced: <span className="text-slate-500">2024-01-15</span>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -89,8 +95,8 @@ const CompactAnalytics = ({ spareParts, maintenanceLogs }) => {
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-2 lg:p-3 bg-slate-950/30">
-                    <div className="relative pl-4 space-y-4">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-2 lg:p-3 bg-slate-950/30 relative">
+                    <div className="relative pl-4 space-y-4 pb-8">
                         {/* Continuous Vertical Line */}
                         <div className="absolute left-[19px] top-4 bottom-4 w-0.5 bg-slate-800"></div>
 
@@ -100,6 +106,7 @@ const CompactAnalytics = ({ spareParts, maintenanceLogs }) => {
                             const accentColor = isMech ? 'bg-amber-500' : 'bg-blue-500';
                             const dotGlow = isMech ? 'shadow-[0_0_15px_#f59e0b] animate-pulse' : 'shadow-[0_0_15px_#3b82f6] animate-pulse';
                             const borderColor = isMech ? 'border-amber-500/50' : 'border-blue-500/50';
+                            const highlightClass = index === 0 ? "bg-slate-800/40 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]" : "bg-slate-900/40"; // Top feed highlight
 
                             return (
                                 <div key={log.id} className="relative pl-10 group/card">
@@ -108,7 +115,7 @@ const CompactAnalytics = ({ spareParts, maintenanceLogs }) => {
 
                                     {/* Card Content - Subtle container */}
                                     <div className={`
-                                relative bg-slate-900/40 border-l-4 ${borderColor} border-y border-r border-white/5 
+                                relative border-l-4 ${borderColor} ${highlightClass} border-y border-r border-white/5 
                                 p-3 lg:p-4 rounded-r-xl rounded-l-sm hover:bg-slate-800/60 hover:scale-[1.01] transition-all duration-300 shadow-lg
                             `}>
                                         <div className="flex justify-between items-start mb-3">
@@ -144,6 +151,12 @@ const CompactAnalytics = ({ spareParts, maintenanceLogs }) => {
                                 No recent activity logs found.
                             </div>
                         )}
+
+                    </div>
+                    {/* Watermark in blank space */}
+                    <div className="absolute bottom-2 right-4 flex items-center gap-2 opacity-20 pointer-events-none">
+                        <CheckCircle2 size={12} className="text-emerald-500" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500">System Optimized</span>
                     </div>
                 </div>
             </div>

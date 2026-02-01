@@ -36,7 +36,7 @@ const ScaleMarks = ({ cx, cy, radius }) => {
 
         ticks.push(
             <g key={i}>
-                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={isMajor ? "#94a3b8" : "#475569"} strokeWidth={isMajor ? 1.5 : 1} />
+                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={isMajor ? "#64748b" : "#334155"} strokeWidth={isMajor ? 1.5 : 1} />
                 {isMajor && (
                     <text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle" className="text-[8px] fill-slate-500 font-mono font-bold" style={{ fontSize: '8px' }}>
                         {i}
@@ -51,6 +51,11 @@ const ScaleMarks = ({ cx, cy, radius }) => {
 const SemiCircleGauge = ({ value, label }) => {
     // Sanitize label for ID usage
     const safeId = label.replace(/\s+/g, '-').toLowerCase();
+
+    // Mock Trend Logic (In real app, pass as prop)
+    const trend = value > 90 ? "+0.8%" : value > 70 ? "-1.2%" : "-5.4%";
+    const trendColor = value > 90 ? "text-emerald-400" : value > 70 ? "text-amber-400" : "text-rose-400";
+    const TrendIcon = value > 90 ? "▲" : "▼";
 
     // 1. Color Theme (3-Tier)
     const getTheme = (val) => {
@@ -88,14 +93,24 @@ const SemiCircleGauge = ({ value, label }) => {
     const strokeDashoffset = arcLength * (1 - clampedValue / 100);
 
     return (
-        <div className="relative flex flex-col items-center justify-end w-[260px] h-[150px]">
+        <div className="relative flex flex-col items-center justify-end w-[260px] h-[150px] group">
 
-            {/* Main Content: Scaled Down Number */}
+            {/* Secondary Glow Layer (Ambient) */}
+            <div className={`absolute top-10 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full ${bg.replace('text', 'bg')}/10 blur-[50px] pointer-events-none`}></div>
+
+            {/* Main Content: Number + Trend */}
             <div className="absolute bottom-[25px] left-0 right-0 flex flex-col items-center z-10 w-full">
-                <span className="text-[3rem] font-bold font-mono text-white tracking-tight drop-shadow-xl leading-none">
-                    {Math.round(clampedValue)}%
-                </span>
-                <span className={`text-[9px] uppercase font-bold tracking-[0.2em] ${bg} mt-1`} style={{ textShadow: `0 0 10px ${color}` }}>
+                <div className="flex items-start gap-2 translate-x-3">
+                    <span className="text-[3.5rem] font-bold font-mono text-white tracking-tight drop-shadow-xl leading-none">
+                        {Math.round(clampedValue)}%
+                    </span>
+                    {/* Trend Indicator */}
+                    <div className={`flex flex-col text-[9px] font-bold font-mono mt-2 ${trendColor}`}>
+                        <span>{TrendIcon}</span>
+                        <span>{trend}</span>
+                    </div>
+                </div>
+                <span className={`text-[9px] uppercase font-bold tracking-[0.2em] ${bg} mt-[-5px]`} style={{ textShadow: `0 0 10px ${color}` }}>
                     {label}
                 </span>
             </div>
@@ -128,7 +143,7 @@ const SemiCircleGauge = ({ value, label }) => {
                         strokeWidth={strokeWidth}
                         strokeLinecap="round"
                         strokeDasharray={`${segmentSize} ${gapSize}`}
-                        className="opacity-30"
+                        className="opacity-40"
                     />
 
                     {/* Active Fill Arc (Segmented) */}
@@ -256,11 +271,12 @@ const NexusHeader = ({
     return (
         <header className="h-[20vh] w-full bg-[#020617] backdrop-blur-2xl border-b border-white/5 shadow-2xl overflow-hidden relative z-50">
 
-            {/* Background Texture */}
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiLz48L3N2Zz4=')] opacity-30 pointer-events-none"></div>
+            {/* Background Texture: Faint Grid */}
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none opacity-20"></div>
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNC4iIGhlaWdodD0iNC4iIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMSkiLz48L3N2Zz4=')] opacity-20 pointer-events-none"></div>
 
             {/* Zero-Overlap Grid System: 25% | 50% | 25% */}
-            <div className="grid grid-cols-[25%_50%_25%] h-full w-full items-center px-8">
+            <div className="grid grid-cols-[25%_50%_25%] h-full w-full items-center px-8 relative z-10">
 
                 {/* COLUMN 1: Identity & Control (Fixed No-Entry Zone) */}
                 <div className="flex flex-col justify-center h-full pr-[40px] border-r border-white/5 relative">
