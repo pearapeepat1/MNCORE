@@ -1,30 +1,51 @@
 import React from 'react';
-import { Settings, Wrench, Activity, Database, Cpu } from 'lucide-react';
+import { Wrench, Activity, Database, Cpu, Zap } from 'lucide-react';
+
+const SegmentedBar = ({ percent, colorClass }) => {
+    const totalSegments = 20;
+    const activeSegments = Math.floor((percent / 100) * totalSegments);
+
+    return (
+        <div className="flex gap-[2px] w-full h-2">
+            {[...Array(totalSegments)].map((_, i) => (
+                <div
+                    key={i}
+                    className={`flex-1 rounded-sm transition-all duration-300 ${i < activeSegments
+                            ? `${colorClass} shadow-[0_0_5px_currentColor] opacity-100`
+                            : 'bg-slate-800 opacity-30'
+                        }`}
+                />
+            ))}
+        </div>
+    );
+};
 
 const SparePartItem = ({ part }) => {
     // Logic for health bar color
-    // Determine color based on usage thresholds
     const maxLife = 60; // Mock max usage
     const healthPercent = Math.max(0, 100 - (part.usage / maxLife) * 100);
 
-    let barColor = "bg-emerald-500 shadow-[0_0_10px_#10b981]";
+    let barColor = "bg-emerald-400";
     let statusText = "HEALTHY";
     let statusTextColor = "text-emerald-400";
+    let glowEffect = "group-hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]";
 
     if (healthPercent < 30) {
-        barColor = "bg-red-500 shadow-[0_0_10px_#ef4444]";
+        barColor = "bg-red-500";
         statusText = "CRITICAL";
         statusTextColor = "text-red-500";
+        glowEffect = "group-hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]";
     } else if (healthPercent < 70) {
-        barColor = "bg-amber-500 shadow-[0_0_10px_#f59e0b]";
+        barColor = "bg-amber-500";
         statusText = "WARNING";
         statusTextColor = "text-amber-400";
+        glowEffect = "group-hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]";
     }
 
     return (
-        <div className="flex items-center gap-4 p-4 bg-slate-900/30 border border-white/5 rounded-xl hover:bg-slate-800/60 transition-all duration-300 group">
+        <div className={`flex items-center gap-4 p-4 bg-slate-900/30 border border-white/5 rounded-xl hover:bg-slate-800/60 transition-all duration-300 group ${glowEffect}`}>
             {/* Icon Block */}
-            <div className="p-3 bg-slate-950 rounded-lg text-slate-500 group-hover:text-cyan-400 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all">
+            <div className="p-3 bg-slate-950 rounded-lg text-slate-500 group-hover:text-cyan-400 transition-all border border-white/5">
                 <Cpu className="w-5 h-5" />
             </div>
 
@@ -39,13 +60,8 @@ const SparePartItem = ({ part }) => {
                     </span>
                 </div>
 
-                {/* Neon Progress Bar */}
-                <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden flex items-center">
-                    <div
-                        className={`h-full ${barColor} rounded-full transition-all duration-1000 ease-out`}
-                        style={{ width: `${healthPercent}%` }}
-                    />
-                </div>
+                {/* Segmented Progress Bar */}
+                <SegmentedBar percent={healthPercent} colorClass={barColor} />
             </div>
 
             {/* Usage Stat */}
@@ -62,6 +78,7 @@ const SparePartItem = ({ part }) => {
 const ActivityItem = ({ log, index }) => {
     // Categorization Logic
     const category = log.action.includes('Software') || log.action.includes('Update') ? 'SYSTEM' : 'MECHANICAL';
+    const isLatest = index === 0;
 
     // Node Color
     const nodeColor = category === 'SYSTEM' ? 'bg-blue-500 shadow-[0_0_10px_#3b82f6]' : 'bg-amber-500 shadow-[0_0_10px_#f59e0b]';
@@ -70,12 +87,17 @@ const ActivityItem = ({ log, index }) => {
     return (
         <div className="relative pl-8 pb-8 last:pb-0 group">
             {/* Timeline Line */}
-            {index !== 2 && ( // Hide line for last item approx
+            {index !== 2 && (
                 <div className={`absolute left-[3px] top-2 bottom-0 w-[2px] ${lineColor}`}></div>
             )}
 
-            {/* Glowing Node */}
-            <div className={`absolute -left-[1px] top-1.5 w-2.5 h-2.5 rounded-full ${nodeColor} ring-4 ring-[#020617] group-hover:scale-125 transition-transform duration-300`} />
+            {/* Neural Node with Ping for Latest */}
+            <div className="absolute -left-[3px] top-1.5 ">
+                {isLatest && (
+                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${nodeColor} scale-150`}></span>
+                )}
+                <div className={`w-3 h-3 rounded-full ${nodeColor} ring-4 ring-[#0f172a] relative z-10`} />
+            </div>
 
             <div className="flex flex-col gap-1 -mt-0.5">
                 <div className="flex items-center gap-3">
@@ -101,9 +123,9 @@ const AnalyticsTier = ({ spareParts = [], logs = [] }) => {
         <section className="h-[31%] w-full flex gap-6 px-6 pb-6 pt-2">
 
             {/* Spare Components Matrix */}
-            <div className="flex-1 relative flex flex-col bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden group">
+            <div className="flex-1 relative flex flex-col bg-[#0f172a]/60 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden group hover:border-white/10 transition-colors">
                 {/* Header with gradient line */}
-                <div className="relative px-6 py-4 border-b border-white/5 bg-white/[0.02]">
+                <div className="relative px-6 py-4 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <Database className="w-4 h-4 text-purple-400" />
                         <h2 className="text-sm font-bold text-white tracking-[0.2em] uppercase">Spare Parts Health</h2>
@@ -118,7 +140,7 @@ const AnalyticsTier = ({ spareParts = [], logs = [] }) => {
             </div>
 
             {/* System Activity Feed (Neural Link Style) */}
-            <div className="w-[35%] relative flex flex-col bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden">
+            <div className="w-[35%] relative flex flex-col bg-[#0f172a]/60 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-colors">
                 <div className="relative px-6 py-4 border-b border-white/5 bg-white/[0.02]">
                     <div className="flex items-center gap-3">
                         <Activity className="w-4 h-4 text-blue-400" />
